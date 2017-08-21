@@ -1,17 +1,16 @@
 library(readxl)
 library(stringr)
 library(dplyr)
-
+library(ggplot2)
 #leitura da tabela
 
 
-dados <- read_excel("C:/Users/Atilio/Desktop/projetoamparo-master/dados.xlsx")
+dados <- read_excel("C:/Users/User/Desktop/projetoamparo-master/dados2.xlsx")
 
 #extracao das arvores
 
 
-v<-unique(dados$`tree
-`)
+v<-unique(dados$`tree`)
 
   #vetor de contextos possiveis
   
@@ -49,11 +48,9 @@ for(i in 1:length(nums2)){
   
 ## matriz com os placares de cada jogador em cada jogada  
   
-x <- cbind(as.character(dados$`player
-Alias`),dados[,23],dados[,28],dados[,32],dados[,33],dados$`movementTime(s)`,dados$`correct`, dados[,3], dados[,5] )
-  
-names(x) <- c("player","move","escolhido","tree","seqreal","tempo","acertou","jogo","fase")
-as.data.frame(x)
+  x <- data.frame(as.character(dados$playerAlias) , dados$move, dados$`optionChoosen`, dados$tree , dados$sequExecuted , dados$`movementTime(s)` , dados$correct, dados$game ,dados$phase)
+
+ names(x) <- cbind("player","move","escolhido","tree","seqreal","tempo","acertou","jogo","fase")
   
 player<-unique(x$player)
 score<-matrix(ncol=length(player),nrow = 200)
@@ -135,24 +132,39 @@ for ( i in 1:nrow (x) ) {
 jogos <- unique ( x$jogo )
 
 #cada jogo
-for ( i in 1 : length(jogos) ){
+for ( i in 1 : length(jogos) ) {
   
   fases <- filter ( x, jogo == jogos[i] )
   
-  fases2<-unique(fases$fase)
-#cada fase  
+  fases2<-unique(fases$player)
+
+  #cada jogador  
   for ( j in 1 : length(fases2) ){
     
     tabjog <- filter ( x, jogo == jogos[i] )
     
-    tabela <- filter ( tabjog, fase == fases2 [j] ) 
-    ####colocar aqui o grafico a ser feito
+    tabela <- filter ( tabjog, player == fases2 [j] ) 
     
-    hist(tabjog$tempo)
+    print (
+      
+      ####colocar aqui o grafico a ser feito
+    #grafico aes =eixos 
+    ggplot(tabela, aes(x=move, y=tempo))  
+    #fala pra fazer pontos e colocar cores diferentes de acordo com o valor de acertou
+      +geom_point(aes(colour = factor(acertou)))
+    #curvinha maneira
+     #+geom_smooth()
+    #matriz de graficos
+    #+facet_grid (. ~fase )
+    #### nomes
+    +labs (title=str_c(as.character(fases2[j]), as.character(jogos[i]),sep=";") ,x="jogada", y="tempo" )
+    
+    
+    ##
+     )
   
-    ####
     
-    }
+      }
 }
 
 
